@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+    <id>Хлебные крошки без ссылки на текущую страницу - SITE-MOSCOW.RU</id>
+    <version>1.0</version>
+    <vqmver>2.0</vqmver>
+    <author>Ренат Мухамеджанов SITE-RUSSIA.RU</author>
+<!-- УБИРАЕТ ССЫЛКИ СТРАНИЦ САМИХ НА СЕБЯ В ХЛЕБНЫХ КРОШКАК -->
+<!-- ХЛЕБНЫЕ КРОШКИ ДЛЯ ШАБЛОНА DEFAULT - СТАНДАРТНАЯ ТЕМА-->
+<file name="catalog/view/theme/default/template/*/*.tpl">
+        <operation error="skip" info="">
+            <search position="replace"><![CDATA[<?php foreach ($breadcrumbs as $breadcrumb) { ?>]]></search>
+            <add><![CDATA[
+            	<?php foreach ($breadcrumbs as $i=> $breadcrumb) { ?>
+            	]]></add>
+        </operation>
+        <operation error="skip" info="">
+            <search position="replace"><![CDATA[<?php echo $breadcrumb['separator']; ?><a href="<?php echo $breadcrumb['href']; ?>"><?php echo $breadcrumb['text']; ?></a>]]></search>
+            <add><![CDATA[
+                <?php echo $breadcrumb['separator']; ?><?php if($i+1<count($breadcrumbs)) { ?><a href="<?php echo $breadcrumb['href']; ?>" >
+                    <?php echo $breadcrumb['text']; ?></a><?php } else { ?>
+                <span class="current"><?php echo $breadcrumb['text']; ?></span><?php } ?>
+            	]]></add>
+        </operation>
+</file>
+</modification>	
+
+
+
+<!-- ВСТАВЬТЕ В НАСТРОЙКАХ МОДУЛЯ ПОПРАВКУ СТИЛЯ, ЧТОБЫ ВЫДЕЛИТЬ ТЕКУЩИЙ ПУНКТ И ВЫРОВНИТЬ ПО ВЕРТИКАЛИ
+.breadcrumb .current {
+	color: #222;
+	font-weight: bold;
+	display: inline;
+	bottom: -1px;
+	position: relative
+} 
+-->

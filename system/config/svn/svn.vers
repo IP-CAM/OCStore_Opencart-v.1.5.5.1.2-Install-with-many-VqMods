@@ -1,0 +1,17 @@
+<div id="scriptblogadmin">
+<script>
+$(document).ready(function(){
+ $.ajax({  type: 'POST',
+			url: '/index.php?route=module/blog/blogadmin',
+			dataType: 'html',
+		   	success: function(data)
+		    {
+		      $('#blogadmin').html(data);
+		      $('#scriptblogadmin').html('');
+  		    }
+	    });
+
+});
+</script>
+</div>
+<div id="blogadmin"></div>

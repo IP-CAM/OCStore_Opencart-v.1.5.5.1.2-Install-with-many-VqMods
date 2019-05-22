@@ -1,0 +1,51 @@
+	.ui-autocomplete {
+	  z-index: 99 !important;
+	}
+	.ui-menu-item{
+		text-align:left;
+		overflow: hidden;
+	}
+  .ui-menu-item a {
+		overflow: hidden;
+	}
+.ui-autocomplete .product-list	.image {
+    float: left;
+    margin-right: 5px;	
+    margin-bottom: 0;
+	}
+.ui-autocomplete .product-list	.image img {
+    height: 40px;
+    border: 1px solid #E7E7E7;
+    padding: 0;
+	}
+.ui-autocomplete .product-list	.name {
+    color: #38B0E3;
+    font-weight: bold;
+    text-decoration: none;
+    height: 20px;
+    overflow: hidden;    
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+.ui-autocomplete .product-list	.price {
+    height: 20px;
+    overflow: hidden;
+    float: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    text-align: left;
+  }
+.ui-autocomplete .product-list	.price-old {
+    margin-right: 2px;
+  } 
+.ui-autocomplete .product-list	.description,
+.ui-autocomplete .product-list	.attributes {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    clear: both;
+  }    
+
+/*author sv2109 (sv2109@gmail.com) license for 1 product copy granted for rhel (shipka2008@mail.ru )*/

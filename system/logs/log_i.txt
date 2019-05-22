@@ -1,0 +1,9 @@
+07:43:36 k = 101
+07:43:36 i = 1, j = 2 | productId = 65
+07:43:36 i = 2, j = 2 | productId = 66
+07:43:36 i = 3, j = 2 | productId = 67
+07:43:36 i = 4, j = 2 | productId = 68
+07:43:37 i = 5, j = 2 | productId = 69
+07:43:37 i = 6, j = 2 | productId = 70
+07:43:37 i = 7, j = 2 | productId = 71
+07:43:37 i = 8, j = 2 | productId = 72

@@ -1,0 +1,24 @@
+<modification>
+	<id>Slideshow Caption</id>
+	<version>For OpenCart 1.5++</version>
+	<vqmver>1.0.8</vqmver>
+	<author>MarketInSG</author>
+	<file name="catalog/view/theme/*/template/module/slideshow.tpl">
+		<operation>
+			<search position="replace"><![CDATA[
+				    <a href="<?php echo $banner['link']; ?>"><img src="<?php echo $banner['image']; ?>" alt="<?php echo $banner['title']; ?>" /></a>
+			]]></search>
+			<add><![CDATA[
+				    <a href="<?php echo $banner['link']; ?>"><img src="<?php echo $banner['image']; ?>" title="<?php echo $banner['title']; ?>" /></a>
+			]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[
+				    <img src="<?php echo $banner['image']; ?>" alt="<?php echo $banner['title']; ?>" />
+			]]></search>
+			<add><![CDATA[
+				    <img src="<?php echo $banner['image']; ?>" title="<?php echo $banner['title']; ?>" />
+			]]></add>
+		</operation>
+	</file>
+</modification>

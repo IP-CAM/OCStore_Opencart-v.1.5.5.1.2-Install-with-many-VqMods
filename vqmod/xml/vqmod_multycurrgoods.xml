@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+        <id>MultyCurrency in admin header</id>
+        <version>1.5.5</version>
+        <vqmver required="true">2.4.0</vqmver>
+        <author>igg-eco.ru</author>
+<!-- product_form.tpl: main price -->
+<file name="admin/view/template/catalog/product_form.tpl">
+    <operation>
+      <search position="replace"><![CDATA[<td><input type="text" name="price" value="<?php echo $price; ?>" />]]></search>
+         <add>
+           <![CDATA[
+             <td><input type="text" name="price" value="<?php echo $price; ?>" /><script type="text/javascript">
+             function nameChangeCurr(dest_name, source_name){
+                var dest_sel     = "input[name='" + dest_name + "']";
+                var source_sel   = "input[name='" + source_name + "']";
+                var objSel = document.getElementById('currency_id');
+                var value  = $(source_sel).attr('value')/objSel.options[objSel.selectedIndex].dataset.item
+                <?php if (isset($round_mode)) { ?>
+                    <?php if ($round_mode==3)  { ?> value  = value.toFixed(3); <?php } ?>
+                    <?php if ($round_mode==2)  { ?> value  = value.toFixed(2); <?php } ?>
+                    <?php if ($round_mode==1)  { ?> value  = value.toFixed(1); <?php } ?>
+                    <?php if ($round_mode==0)  { ?> value  = value.toFixed(0); <?php } ?>
+                    <?php if ($round_mode==-1) { ?> value  = 10*(value/10).toFixed(0); <?php } ?>
+                    <?php if ($round_mode==-2) { ?> value  = 100*(value/100).toFixed(0); <?php } ?>
+                <?php } ?>
+                $(dest_sel).attr('value', value);
+                }
+             </script>
+             &nbsp;&nbsp;&nbsp;Задать цену в другой валюте:
+             <input type="text" onchange="nameChangeCurr('price','price_curr');" name="price_curr" value="<?php echo $price_multycurr; ?>" />
+             <select id="currency_id" name="currency_id" onchange="nameChangeCurr('price', 'price_curr');">
+             <?php foreach ($currencies as $curr) { ?>
+             <option data-item="<?php echo $curr['value']; ?>" <?php if ((($curr['value']==1)&&($price_multycurr_currency_id==-1))||($price_multycurr_currency_id==$curr['currency_id'])) { ?> selected="selected"<?php } ?> value="<?php echo $curr['currency_id']; ?>"><?php echo $curr['title']; ?></option>
+             <?php } ?></select>&nbsp;&nbsp;(Валютная цена и код валюты будут сохранены в отдельной таблице)</td>
+         ]]>
+        </add>
+    </operation>
+</file>
+<!-- product_form.tpl: option price -->
+<file name="admin/view/template/catalog/product_form.tpl">
+    <operation>
+            <search position="replace"><![CDATA[<td class="right"><select name="product_option[<?php echo $option_row; ?>][product_option_value][<?php echo $option_value_row; ?>][price_prefix]">]]></search>
+            <add>
+                 <![CDATA[<td class="right">Цена в валюте по умолчанию: <select name="product_option[<?php echo $option_row; ?>][product_option_value][<?php echo $option_value_row; ?>][price_prefix]">]]>
+            </add>
+    </operation>
+    <operation>
+            <search position="replace"><![CDATA[<input type="text" name="product_option[<?php echo $option_row; ?>][product_option_value][<?php echo $option_value_row; ?>][price]" value="<?php echo $product_option_value['price']; ?>" size="5" />]]></search>
+            <add>
+                 <![CDATA[
+                 <input type="text" name="product_option[<?php echo $option_row; ?>][product_option_value][<?php echo $option_value_row; ?>][price]" value="<?php echo $product_option_value['price']; ?>" size="5" /><br />Цена в другой валюте:
+                    <input type="text" name="product_option[<?php echo $option_row; ?>][product_option_value][<?php echo $option_value_row; ?>][mc_price]" value="<?php echo $product_option_value['mc_price']; ?>" onchange="nameChangeCurr('product_option[<?php echo $option_row; ?>][product_option_value][<?php echo $option_value_row; ?>][price]','product_option[<?php echo $option_row; ?>][product_option_value][<?php echo $option_value_row; ?>][mc_price]');" />
+                    <br />Используется валюта, заданная в закладке "Данные" в графе "Цена"
+                  ]]>
+            </add>
+    </operation>
+    <operation>
+            <search position="replace"><![CDATA[	html += '    <td class="right"><select name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][price_prefix]">';]]></search>
+            <add>
+                 <![CDATA[	html += '    <td class="right">Цена в валюте по умолчанию:<select name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][price_prefix]">';]]>
+            </add>
+    </operation>
+    <operation>
+            <search position="replace"><![CDATA[	html += '    <input type="text" name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][price]" value="" size="5" /></td>';]]></search>
+            <add>
+                 <![CDATA[
+                 html += '<input type="text" name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][price]" value="0" size="5" /><br />Цена в другой валюте:';
+                    html += '<input type="text" name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][mc_price]" value="0" onchange="nameChangeCurr(\'product_option[' + option_row + '][product_option_value][' + option_value_row + '][price]\',\'product_option[' + option_row + '][product_option_value][' + option_value_row + '][mc_price]\');" />';
+                    html += '<br />Используется валюта, заданная в закладке "Данные" в графе "Цена"</td>';
+                ]]>
+            </add>
+    </operation>
+</file>
+<!-- product_form.tpl: special price -->
+<file name="admin/view/template/catalog/product_form.tpl">
+    <operation>
+            <search position="replace"><![CDATA[<td class="right"><input type="text" name="product_special[<?php echo $special_row; ?>][price]" value="<?php echo $product_special['price']; ?>" /></td>]]></search>
+            <add>
+                 <![CDATA[
+                  <td class="right">Цена в валюте по умолчанию:<input type="text" name="product_special[<?php echo $special_row; ?>][price]" value="<?php echo $product_special['price']; ?>" />
+                  <br />Цена в другой валюте:<input type="text" name="product_special[<?php echo $special_row; ?>][mc_price]" value="<?php echo $product_special['mc_price']; ?>" onchange="nameChangeCurr('product_special[<?php echo $special_row; ?>][price]','product_special[<?php echo $special_row; ?>][mc_price]');" />
+                  <br />Используется валюта, заданная в закладке "Данные" в графе "Цена"</td>
+                ]]>
+            </add>
+    </operation>
+    <operation>
+            <search position="replace"><![CDATA[html += '    <td class="right"><input type="text" name="product_special[' + special_row + '][price]" value="" /></td>';]]></search>
+            <add>
+                 <![CDATA[
+                    html += '    <td class="right">Цена в валюте по умолчанию:<input type="text" name="product_special[' + special_row + '][price]" value="" />';
+                    html += '<br />Цена в другой валюте:<input type="text" name="product_special[' + special_row + '][mc_price]" value=""  onchange="nameChangeCurr(\'product_special[' + special_row + '][price]\',\'product_special[' + special_row + '][mc_price]\');"  />';
+                    html += '<br />Используется валюта, заданная в закладке "Данные" в графе "Цена"</td>';
+                  ]]>
+            </add>
+    </operation>
+</file>
+<!-- product_form.tpl: discount price -->
+<file name="admin/view/template/catalog/product_form.tpl">
+    <operation>
+            <search position="replace"><![CDATA[<td class="right"><input type="text" name="product_discount[<?php echo $discount_row; ?>][price]" value="<?php echo $product_discount['price']; ?>" /></td>]]></search>
+            <add>
+                 <![CDATA[
+                 <td class="right">Цена в валюте по умолчанию:<input type="text" name="product_discount[<?php echo $discount_row; ?>][price]" value="<?php echo $product_discount['price']; ?>" />
+                    <br />Цена в другой валюте:<input type="text" name="product_discount[<?php echo $discount_row; ?>][mc_price]" value="<?php echo $product_discount['mc_price']; ?>" onchange="nameChangeCurr('product_discount[<?php echo $discount_row; ?>][price]','product_discount[<?php echo $discount_row; ?>][mc_price]');"  />
+                    <br />Используется валюта, заданная в закладке "Данные" в графе "Цена"</td>
+                  ]]>
+            </add>
+    </operation>
+    <operation>
+            <search position="replace"><![CDATA[html += '    <td class="right"><input type="text" name="product_discount[' + discount_row + '][price]" value="" /></td>';]]></search>
+            <add>
+                 <![CDATA[
+                    html += '    <td class="right">Цена в валюте по умолчанию:<input type="text" name="product_discount[' + discount_row + '][price]" value="" />';
+                    html += '<br />Цена в другой валюте:<input type="text" name="product_discount[' + discount_row + '][mc_price]" value=""  onchange="nameChangeCurr(\'product_discount[' + discount_row + '][price]\',\'product_discount[' + discount_row + '][mc_price]\');" />';
+                    html += '<br />Используется валюта, заданная в закладке "Данные" в графе "Цена"</td>';
+                ]]>
+            </add>
+    </operation>
+</file>
+<!-- admin/controller/catalog/product.php:  -->
+<file name="admin/controller/catalog/product.php">
+    <operation>
+      <search position="after"><![CDATA[$this->language->get('tab_design');]]></search>
+      <add>
+           <![CDATA[
+              $this->data['round_mode'] = 2;
+              $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "setting WHERE `group` = 'multycurrgoods' AND `key` = 'round_mode'");
+              if ($query->row) $this->data['round_mode'] = $query->row['value'];
+              if (($this->data['round_mode']<-2)||($this->data['round_mode']>3)) $this->data['round_mode'] = 2;
+           
+              $this->data['currencies'] = array();
+              $data = array(
+                 'sort'  => 'title',
+                 'order' => 'ASC',
+                 'start' => 0,
+                 'limit' => $this->config->get('config_admin_limit')
+                 );
+              $sql = "SELECT * FROM " . DB_PREFIX . "currency" . " ORDER BY title" . " ASC" . " LIMIT " . (int)0 . "," . (int)20;
+              $query = $this->db->query($sql);$results = $query->rows;
+              foreach ($results as $result) {
+              $this->data['currencies'][] = array(
+                 'currency_id'   => $result['currency_id'],
+                 'title'         => $result['title'] . (($result['code'] == $this->config->get('config_currency')) ? ' (По умолчанию)' : null),
+                 'code'          => $result['code'],
+                 'value'         => $result['value'],
+                 'selected'      => isset($this->request->post['selected']) && in_array($result['currency_id'], $this->request->post['selected']) 
+                 );
+              }
+               ]]>
+      </add>
+    </operation>
+    <operation>
+      <search position="after"><![CDATA[$this->model_catalog_product->getProduct($this->request->get['product_id']);]]></search>
+      <add>
+           <![CDATA[$product_info_add     = $this->model_catalog_product->getProductMultyCurr($this->request->get['product_id']);]]>
+      </add>
+    </operation>
+    <operation>
+      <search position="before"><![CDATA[$this->load->model('localisation/tax_class');]]></search>
+      <add>
+           <![CDATA[
+           $this->data['price_multycurr'] = '';
+           $this->data['price_multycurr_currency_id'] = -1;
+           if (isset($product_info_add)) {
+            if ($product_info_add) {
+              $this->data['price_multycurr']              = $product_info_add['price'];
+              $this->data['price_multycurr_currency_id']  = $product_info_add['currency_id'];
+              }
+            }
+           ]]>
+      </add>
+    </operation>
+   <operation>
+      <search position="after"><![CDATA[$product_option_value_data[] = array(]]></search>
+      <add>
+           <![CDATA['mc_price' => $product_option_value['mc_price'],]]>
+      </add>
+    </operation>
+</file>
+<!-- admin/model/catalog/product.php:  add poduct-->
+<file name="admin/model/catalog/product.php">
+    <operation>
+      <search position="before"><![CDATA[public function editProduct]]></search>
+      <add>
+           <![CDATA[
+           public function getProductMultyCurr($product_id) { $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_multycurr WHERE product_id = '" . (int)$product_id . "'"); return $query->row; }
+           ]]>
+      </add>
+    </operation>
+    <operation>
+      <search position="after"><![CDATA[$product_id = $this->db->getLastId();]]></search>
+      <add>
+           <![CDATA[
+            if (isset($data['price_curr'])) {
+             if ($data['price_curr']) {
+               $this->db->query("INSERT INTO " . DB_PREFIX . "product_multycurr SET product_id = '" . (int)$product_id . "', price = '" . (float)$data['price_curr'] . "', currency_id = '" . (int)$data['currency_id'] . "'");
+               }
+              }
+           ]]>
+      </add>
+    </operation>
+</file>
+<!-- admin/model/catalog/product.php:  copy poduct-->
+<file name="admin/model/catalog/product.php">
+    <operation>
+      <search position="after"><![CDATA[$data = array_merge($data, array('product_store' => $this->getProductStores($product_id)));]]></search>
+      <add>
+           <![CDATA[
+             $mquery = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_multycurr WHERE product_id = '" . $product_id . "'");
+        	   if ($mquery->row) {
+               $data['price_curr']  = $mquery->row['price'];
+               $data['currency_id'] = $mquery->row['currency_id'];
+               }
+           ]]>
+      </add>
+    </operation>
+</file>
+<!-- admin/model/catalog/product.php:  delete poduct-->
+<file name="admin/model/catalog/product.php">
+    <operation>
+      <search position="after"><![CDATA[public function deleteProduct($product_id) {]]></search>
+      <add>
+           <![CDATA[
+          		$this->db->query("DELETE FROM " . DB_PREFIX . "product_multycurr WHERE product_id = '" . (int)$product_id . "'");
+          		$this->db->query("DELETE FROM " . DB_PREFIX . "product_multycurr_special WHERE product_id = '" . (int)$product_id . "'");
+          		$this->db->query("DELETE FROM " . DB_PREFIX . "product_multycurr_discount WHERE product_id = '" . (int)$product_id . "'");
+          		$this->db->query("DELETE FROM " . DB_PREFIX . "product_multycurr_option WHERE product_id = '" . (int)$product_id . "'");
+           ]]>
+      </add>
+    </operation>
+</file>
+<!-- admin/model/catalog/product.php:  edit poduct-->
+<file name="admin/model/catalog/product.php">
+    <operation>
+      <search position="after"><![CDATA[public function editProduct($product_id, $data) {]]></search>
+      <add>
+           <![CDATA[
+           $this->db->query("DELETE FROM " . DB_PREFIX . "product_multycurr_special WHERE product_id = '" . (int)$product_id . "'");
+           $this->db->query("DELETE FROM " . DB_PREFIX . "product_multycurr_discount WHERE product_id = '" . (int)$product_id . "'");
+           $this->db->query("DELETE FROM " . DB_PREFIX . "product_multycurr_option WHERE product_id = '" . (int)$product_id . "'");
+           $this->db->query("DELETE FROM " . DB_PREFIX . "product_multycurr WHERE product_id = '" . (int)$product_id . "'");
+           if ($data['price_curr']) {$this->db->query("INSERT INTO " . DB_PREFIX . "product_multycurr SET product_id = '" . (int)$product_id . "', price = '" . (float)$data['price_curr'] . "', currency_id = '" . (int)$data['currency_id'] . "'");}
+           ]]>
+      </add>
+    </operation>
+</file>
+<!-- admin/model/catalog/product.php: edit poduct - option price -->
+<file name="admin/model/catalog/product.php">
+   <operation>
+      <search position="after"><![CDATA[$product_option_value_data[] = array(]]></search>
+      <add>
+           <![CDATA['mc_price' => $product_option_value['mc_price'],]]>
+      </add>
+    </operation>
+    <operation>
+      <search position="after"><![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "product_option_value SET product_option_id = '" . (int)$product_option_id . "', product_id = '" . (int)$product_id . "', option_id = '" . (int)$product_option['option_id'] . "', option_value_id = '" . (int)$product_option_value['option_value_id'] . "', quantity = '" . (int)$product_option_value['quantity'] . "', subtract = '" . (int)$product_option_value['subtract'] . "', price = '" . (float)$product_option_value['price'] . "', price_prefix = '" . $this->db->escape($product_option_value['price_prefix']) . "', points = '" . (int)$product_option_value['points'] . "', points_prefix = '" . $this->db->escape($product_option_value['points_prefix']) . "', weight = '" . (float)$product_option_value['weight'] . "', weight_prefix = '" . $this->db->escape($product_option_value['weight_prefix']) . "'");]]></search>
+      <add>
+           <![CDATA[
+           $last_id = $this->db->getLastId(); 
+           if ($product_option_value['mc_price'])$this->db->query("INSERT INTO " . DB_PREFIX . "product_multycurr_option SET product_option_value_id = '" . (int)$last_id . "', product_id = '" . (int)$product_id . "', mc_price = '" . (float)$product_option_value['mc_price'] . "', currency_id = '" . (int)$data['currency_id'] . "'");
+           ]]>        
+      </add>
+  </operation>
+    <operation>
+      <search position="after"><![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "product_option_value SET product_option_value_id = '" . (int)$product_option_value['product_option_value_id'] . "', product_option_id = '" . (int)$product_option_id . "', product_id = '" . (int)$product_id . "', option_id = '" . (int)$product_option['option_id'] . "', option_value_id = '" . (int)$product_option_value['option_value_id'] . "', quantity = '" . (int)$product_option_value['quantity'] . "', subtract = '" . (int)$product_option_value['subtract'] . "', price = '" . (float)$product_option_value['price'] . "', price_prefix = '" . $this->db->escape($product_option_value['price_prefix']) . "', points = '" . (int)$product_option_value['points'] . "', points_prefix = '" . $this->db->escape($product_option_value['points_prefix']) . "', weight = '" . (float)$product_option_value['weight'] . "', weight_prefix = '" . $this->db->escape($product_option_value['weight_prefix']) . "'");]]></search>
+      <add>
+           <![CDATA[
+           $last_id = $this->db->getLastId(); 
+           if ($product_option_value['mc_price'])$this->db->query("INSERT INTO " . DB_PREFIX . "product_multycurr_option SET product_option_value_id = '" . (int)$last_id . "', product_id = '" . (int)$product_id . "', mc_price = '" . (float)$product_option_value['mc_price'] . "', currency_id = '" . (int)$data['currency_id'] . "'");
+           ]]>        
+      </add>
+  </operation>
+  <operation>
+      <search position="replace"><![CDATA[$product_option_value_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_option_value WHERE product_option_id = '" . (int)$product_option['product_option_id'] . "'");]]></search>
+      <add>
+           <![CDATA[$product_option_value_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_option_value pov LEFT JOIN " . DB_PREFIX . "product_multycurr_option pd ON (pov.product_option_value_id = pd.product_option_value_id) WHERE pov.product_option_id = '" . (int)$product_option['product_option_id'] . "'");]]>
+      </add>
+  </operation>
+</file>
+<!-- admin/model/catalog/product.php: edit poduct - special price -->
+<file name="admin/model/catalog/product.php">
+    <operation>
+      <search position="after"><![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "product_special SET product_id = '" . (int)$product_id . "', customer_group_id = '" . (int)$product_special['customer_group_id'] . "', priority = '" . (int)$product_special['priority'] . "', price = '" . (float)$product_special['price'] . "', date_start = '" . $this->db->escape($product_special['date_start']) . "', date_end = '" . $this->db->escape($product_special['date_end']) . "'");]]></search>
+      <add>
+           <![CDATA[
+           $last_id = $this->db->getLastId(); 
+           if ($product_special['mc_price']){$this->db->query("INSERT INTO " . DB_PREFIX . "product_multycurr_special SET product_special_id = '" . (int)$last_id . "', product_id = '" . (int)$product_id . "', mc_price = '" . (float)$product_special['mc_price'] . "', currency_id = '" . (int)$data['currency_id'] . "'");}
+           ]]>        
+      </add>
+    </operation>
+    <operation>
+      <search position="replace"><![CDATA[$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_special WHERE product_id = '" . (int)$product_id . "' ORDER BY priority, price");]]></search>
+      <add>
+           <![CDATA[$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_special p LEFT JOIN " . DB_PREFIX . "product_multycurr_special pd ON (p.product_special_id = pd.product_special_id) WHERE p.product_id = '" . (int)$product_id . "' ORDER BY priority, price");]]>
+      </add>
+    </operation>
+</file>
+<!-- admin/model/catalog/product.php: edit poduct - discount price -->
+<file name="admin/model/catalog/product.php">
+    <operation>
+      <search position="after"><![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "product_discount SET product_id = '" . (int)$product_id . "', customer_group_id = '" . (int)$product_discount['customer_group_id'] . "', quantity = '" . (int)$product_discount['quantity'] . "', priority = '" . (int)$product_discount['priority'] . "', price = '" . (float)$product_discount['price'] . "', date_start = '" . $this->db->escape($product_discount['date_start']) . "', date_end = '" . $this->db->escape($product_discount['date_end']) . "'");]]></search>
+      <add>
+           <![CDATA[
+           $last_id = $this->db->getLastId(); 
+           if ($product_discount['mc_price']){$this->db->query("INSERT INTO " . DB_PREFIX . "product_multycurr_discount SET product_discount_id = '" . (int)$last_id . "', product_id = '" . (int)$product_id . "', mc_price = '" . (float)$product_discount['mc_price'] . "', currency_id = '" . (int)$data['currency_id'] . "'");}
+           ]]>        
+      </add>
+    </operation>
+    <operation>
+      <search position="replace"><![CDATA[$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_discount WHERE product_id = '" . (int)$product_id . "' ORDER BY quantity, priority, price");]]></search>
+      <add>
+           <![CDATA[$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_discount p LEFT JOIN " . DB_PREFIX . "product_multycurr_discount pd ON (p.product_discount_id = pd.product_discount_id) WHERE p.product_id = '" . (int)$product_id . "' ORDER BY priority, price");]]>
+      </add>
+    </operation>
+</file>
+
+       
+</modification>

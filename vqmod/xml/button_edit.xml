@@ -1,0 +1,48 @@
+﻿<modification>
+    <id>Edit Button</id>
+    <version>1.0</version>
+    <vqmver>2.1.6</vqmver>
+    <author>noakky@gmail.com</author>
+	<file name="admin/controller/sale/order.php">
+		<operation>
+			<search position="before">
+				<![CDATA[			$this->data['button_invoice'] = $this->language->get('button_invoice');]]>
+			</search>
+			<add>
+				<![CDATA[			$this->data['button_inedit'] = $this->language->get('button_inedit');]]>
+			</add>
+		</operation>
+		<operation>
+			<search position="before">
+				<![CDATA[			$this->data['invoice'] = $this->url->link('sale/order/invoice', 'token=' . $this->session->data['token'] . '&order_id=' . (int)$this->request->get['order_id'], 'SSL');]]>
+			</search>
+			<add>
+				<![CDATA[			$this->data['inedit'] = $this->url->link('sale/order/update', 'token=' . $this->session->data['token'] . '&order_id=' . (int)$this->request->get['order_id'], 'SSL');]]>
+			</add>
+		</operation>
+	</file>
+	<file name="admin/language/russian/russian.php">
+		<operation>
+			<search position="after">
+				<![CDATA[$_['button_invoice']          = 'Показать счет';]]>
+			</search>
+			<add>
+				<![CDATA[$_['button_inedit']           = 'Изменить';]]>
+			</add>
+		</operation>
+	</file>
+	<file name="admin/view/template/sale/order_info.tpl">
+		<operation>
+			<search position="replace">
+				<![CDATA[
+					<div class="buttons"><a href="<?php echo $invoice; ?>" target="_blank" class="button"><?php echo $button_invoice; ?></a><a href="<?php echo $cancel; ?>" class="button"><?php echo $button_cancel; ?></a></div>
+				]]>
+			</search>
+			<add>
+				<![CDATA[
+					<div class="buttons"><a href="<?php echo $inedit; ?>" target="_blank" class="button"><?php echo $button_inedit; ?></a><a href="<?php echo $invoice; ?>" target="_blank" class="button"><?php echo $button_invoice; ?></a><a href="<?php echo $cancel; ?>" class="button"><?php echo $button_cancel; ?></a></div>
+				]]>
+			</add>
+		</operation>
+	</file>
+</modification>

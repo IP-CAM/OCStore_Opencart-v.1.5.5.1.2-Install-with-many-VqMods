@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+    <id>arbitrage v0.1</id>
+    <version>1.5.X</version>
+    <vqmver required="true">2.5.0</vqmver>
+    <author>berber</author>
+
+    <file name="admin/controller/common/header.php">
+	<operation>
+	    <search position="after"><![CDATA[$this->data['text_order'] = $this->language->get('text_order');]]></search>
+	    <add><![CDATA[$this->data['text_catapulta'] = $this->language->get('text_catapulta');]]></add>
+	</operation>
+	<operation>
+	    <search position="after"><![CDATA[$this->data['order'] = $this->url->link('sale/order', 'token=' . $this->session->data['token'], 'SSL');]]></search>
+	    <add><![CDATA[$this->data['catapulta'] = $this->url->link('catalog/catapulta', 'token=' . $this->session->data['token'], 'SSL');]]></add>
+	</operation>
+    </file>
+    <file name="admin/language/russian/common/header.php">
+	<operation>
+	    <search position="after" trim="true"><![CDATA[$_['text_order']                       = 'Заказы';]]></search>
+	    <add><![CDATA[$_['text_catapulta'] = 'Заказы в один клик';]]></add>
+	</operation>
+    </file>
+    <file name="admin/view/template/common/header.tpl">
+	<operation>
+	    <search position="after"><![CDATA[<li><a href="<?php echo $order; ?>"><?php echo $text_order; ?></a></li>]]></search>
+	    <add><![CDATA[<li><a href="<?php echo $catapulta; ?>"><?php echo $text_catapulta; ?></a></li>]]></add>
+	</operation>
+    </file>
+
+</modification>

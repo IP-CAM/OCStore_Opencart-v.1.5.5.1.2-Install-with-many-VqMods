@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+        <id>Categories Not Collapsed</id>
+        <version>1.0</version>
+        <vqmver>1.0.8</vqmver>
+        <author>Ariel Orozco</author>
+        <file name="catalog/view/theme/*/template/module/category.tpl">
+                <operation>
+                        <search position="replace"><![CDATA[
+                        <a href="<?php echo $category['href']; ?>"><?php echo $category['name']; ?></a>
+                        ]]></search>
+                        <add><![CDATA[
+                        <a href="<?php echo $category['href']; ?>" class="active"><?php echo $category['name']; ?></a>
+                        ]]></add>
+                </operation>
+        </file>
+</modification>

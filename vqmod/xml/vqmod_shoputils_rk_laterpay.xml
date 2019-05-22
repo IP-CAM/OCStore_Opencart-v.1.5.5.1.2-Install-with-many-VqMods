@@ -1,0 +1,102 @@
+<modification>
+	<id>Модуль оплаты "Робокасса", отсроченная оплата (Shoputils.Robokassa 1.5.x Laterpay Extension)</id>
+	<version>2.1</version>
+	<vqmver>2.1.7</vqmver>
+	<author>Shoputils (http://opencart.shoputils.ru)</author>
+
+    <file name="catalog/controller/account/order.php">
+        <operation error="log">
+            <search position="after"><![CDATA[$this->data['button_continue']]]></search>
+            <add><![CDATA[
+      //Shoputils.rk 1.5.x Laterpay Extension Begin
+      $this->data['button_shoputils_rk_onpay'] = $this->language->get('button_shoputils_rk_onpay');
+      $this->load->model('payment/shoputils_rk');
+      //Shoputils.rk 1.5.x Laterpay Extension End
+            ]]></add>
+        </operation>
+        <operation error="log">
+            <search position="after"><![CDATA[$this->currency->format($result['total'], $result['currency_code'], $result['currency_value'])]]></search>
+            <add><![CDATA[
+      //Shoputils.rk 1.5.x Laterpay Extension Begin
+      'shoputils_rk_onpay'  => $this->model_payment_shoputils_rk->checkLaterpay($result['order_id']) ? str_replace(' ', '%20', $this->url->link('payment/shoputils_rk/laterpay', sprintf('order_id=%s&order_tt=%s&order_fl=%s%s', $result['order_id'], $result['total'], $result['firstname'], $result['lastname']), 'SSL')) : '',
+      //Shoputils.rk 1.5.x Laterpay Extension End
+            ]]></add>
+        </operation>
+    </file>
+    <file name="catalog/language/english/account/order.php">
+        <operation error="skip">
+            <search position="after"><![CDATA[$_['heading_title']]]></search>
+            <add><![CDATA[
+      //Shoputils.rk 1.5.x Laterpay Extension Begin
+      // Button
+      $_['button_shoputils_rk_onpay']  = 'Onpay Online via Robokassa';
+      //Shoputils.rk 1.5.x Laterpay Extension End
+            ]]></add>
+        </operation>
+    </file>
+    <file name="catalog/language/russian/account/order.php">
+        <operation error="skip">
+            <search position="after"><![CDATA[$_['heading_title']]]></search>
+            <add><![CDATA[
+      //Shoputils.rk 1.5.x Laterpay Extension Begin
+      // Button
+      $_['button_shoputils_rk_onpay']  = 'Оплатить онлайн';
+      //Shoputils.rk 1.5.x Laterpay Extension End
+            ]]></add>
+        </operation>
+    </file>
+    <file name="catalog/view/theme/*/template/account/order_list.tpl">
+        <!-- <operation error="skip">
+            <search position="replace"><![CDATA[<?php echo $order['products_count']; ?>]]></search>
+            <add><![CDATA[<?php echo $order['products_count']; ?><?php if (!empty($order['shoputils_rk_onpay'])) { ?><br /><a onclick="location='<?php echo $order['shoputils_rk_onpay']; ?>'" class="button"><?php echo $button_shoputils_rk_onpay; ?></a><?php } ?>]]></add>
+        </operation>
+        <operation error="skip">
+            <search position="replace"><![CDATA[<?php echo $order['products']; ?>]]></search>
+            <add><![CDATA[<?php echo $order['products']; ?><?php if (!empty($order['shoputils_rk_onpay'])) { ?><br /><a onclick="location='<?php echo $order['shoputils_rk_onpay']; ?>'" class="button"><?php echo $button_shoputils_rk_onpay; ?></a><?php } ?>]]></add>
+        </operation>  -->
+        <operation error="skip">
+            <search position="replace"><![CDATA[<div class="order-info">]]></search>
+            <add><![CDATA[<div class="order-info"><?php if (!empty($order['shoputils_rk_onpay'])) { ?><a onclick="location='<?php echo $order['shoputils_rk_onpay']; ?>'"><img src="catalog/view/theme/default/image/shoputils_onpay_rk.png" alt="<?php echo $button_shoputils_rk_onpay; ?>" title="<?php echo $button_shoputils_rk_onpay; ?>" /></a>&nbsp;&nbsp;<?php } ?>]]></add>
+        </operation>
+    </file>
+    <file name="admin/language/english/mail/order.php">
+        <operation error="skip">
+            <search position="before"><![CDATA[$_['text_comment']]]></search>
+            <add><![CDATA[
+      //Shoputils.rk 1.5.x Laterpay Extension Begin
+      $_['text_rk_onpay'] = 'Please pay clicking on the link: %s';
+      //Shoputils.rk 1.5.x Laterpay Extension End
+            ]]></add>
+        </operation>
+    </file>
+    <file name="admin/language/russian/mail/order.php">
+        <operation error="skip">
+            <search position="before"><![CDATA[$_['text_comment']]]></search>
+            <add><![CDATA[
+      //Shoputils.rk 1.5.x Laterpay Extension Begin
+      $_['text_rk_onpay'] = 'Пожалуйста, оплатите покупку перейдя по ссылке: %s';
+      //Shoputils.rk 1.5.x Laterpay Extension End
+            ]]></add>
+        </operation>
+    </file>
+    <file name="admin/model/sale/order.php">
+        <operation error="log">
+            <search position="after"><![CDATA[$language->load('mail/order');]]></search>
+            <add><![CDATA[
+      //Shoputils.rk 1.5.x Laterpay Extension Begin
+      $this->load->model('shoputils/rk');
+      if (($this->config->get('shoputils_rk_order_later_status_id') == $data['order_status_id']) && ($order_info[$this->model_shoputils_rk->getMethodKey()] == $this->model_shoputils_rk->getMethodCode($order_info))) {
+        $onpay_url = str_replace(' ', '%20', sprintf('%sindex.php?route=payment/shoputils_rk/laterpay&order_id=%s&order_tt=%s&order_fl=%s%s',
+                              defined('HTTPS_CATALOG') ? HTTPS_CATALOG : HTTP_CATALOG,
+                              $order_info['order_id'],
+                              $order_info['total'],
+                              $order_info['firstname'],
+                              $order_info['lastname']
+                             ));
+        $data['comment'] = $data['comment'] . "\n" . sprintf($language->get('text_rk_onpay'), $onpay_url);
+      }
+      //Shoputils.rk 1.5.x Laterpay Extension End
+            ]]></add>
+        </operation>
+    </file>
+</modification>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+	<id>Параметры интернет-магазинов - Яндекс метрика</id>
+	<version>0.1</version>
+	<vqmver>1.0.9</vqmver>
+	<author>kikasso</author>
+
+	<file name="catalog/controller/checkout/success.php">
+		<operation>
+                <ignoreif><![CDATA[
+                    $this->data['order_id'] = $this->session->data['order_id'];
+                    ]]></ignoreif>
+		<search position="after"><![CDATA[
+				if (isset($this->session->data['order_id'])) {
+			]]></search>
+			<add><![CDATA[
+			$this->data['order_id'] = $this->session->data['order_id'];
+                        $this->data['store_name'] = $this->config->get('config_name');
+
+                        $this->load->model('account/order');
+                        $this->data['order_info'] = $this->model_account_order->getOrder($this->session->data['order_id']);
+
+                        $this->data['order_products'] = $this->model_account_order->getOrderProducts($this->session->data['order_id']);
+
+                        $tax = 0;
+                        foreach($this->data['order_products'] as $row){
+                            $tax = $tax + $row['tax'];
+                        }
+                        $this->data['tax'] = $tax;
+			]]></add>
+		</operation>
+	</file>
+
+	<file name="catalog/view/theme/default/template/common/success.tpl">
+		<operation>
+			<search position="before"><![CDATA[
+				<?php echo $footer; ?>
+			]]></search>
+			<add><![CDATA[
+			<?php if(isset($order_id) && $order_id) { ?>
+    <script type="text/javascript">
+
+        var yaParams = {
+                order_id: "<?php echo $order_id; ?>",
+                order_price: <?php echo  round($order_info["total"]); ?>, 
+                currency: "<?php echo $order_info["currency_code"]; ?>",
+                exchange_rate: 1,
+                goods: []
+        };
+       
+        <?php foreach ($order_products as $i=>$row) { ?>
+            yaParams.goods[<?php echo $i; ?>] = {
+                        id: "<?php echo $row["order_product_id"]; ?>", 
+                        name: "<?php echo htmlentities($row['name'],ENT_COMPAT,'UTF-8'); ?>", 
+                        price: "<?php echo  round($row["price"]); ?>",
+                        quantity: "<?php echo $row["quantity"]; ?>"
+                      } 
+        <?php } ?>                     
+
+    </script>
+    <?php } ?>
+			]]></add>
+		</operation>
+	</file>	
+
+</modification>

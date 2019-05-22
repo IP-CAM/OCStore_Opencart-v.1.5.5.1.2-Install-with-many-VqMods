@@ -1,0 +1,12 @@
+<modification>
+	<id><![CDATA[Hide Title in Image Zoom Pop-up Window]]></id>
+	<version><![CDATA[1.1]]></version>
+	<vqmver><![CDATA[2.1.6]]></vqmver>
+	<author><![CDATA[beattie]]></author>
+	<file name="catalog/view/theme/*/template/product/product.tpl">
+		<operation>
+			<search position="replace"><![CDATA[title="<?php echo $heading_title; ?>" class="colorbox"]]></search>
+			<add><![CDATA[class="colorbox"]]></add>
+		</operation>
+    </file>
+</modification>

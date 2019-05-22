@@ -1,0 +1,293 @@
+<modification>
+    <id>View Module Positions</id>
+    <version>1.3</version>
+    <vqmver>2.2.2</vqmver>
+    <author>OpencartModules</author>
+
+    <file name="admin/language/russian/extension/module.php">
+        <operation error="skip">
+            <search position="before"><![CDATA[
+              ?>
+          ]]>
+            </search>
+            <add><![CDATA[
+  	        //OpencartModules
+            $_['column_sort_orders']    = 'Порядок отображения в позиции';
+            $_['column_sort_order']    = 'Порядок сортировки в админке';
+            $_['column_description']    = 'Описание';
+            $_['column_positions']    = 'Позиции';
+            $_['column_layouts']    = 'Схемы';
+          ]]></add>
+        </operation>
+    </file>
+    <file name="admin/language/english/extension/module.php">
+        <operation error="skip">
+            <search position="before"><![CDATA[
+              ?>
+          ]]>
+            </search>
+            <add><![CDATA[
+  	        //OpencartModules
+            $_['column_sort_orders']    = 'Sort order in frontend';
+            $_['column_sort_order']    = 'Sort order here';
+            $_['column_description']    = 'Description';
+            $_['column_positions']    = 'Positions';
+            $_['column_layouts']    = 'Layouts';
+          ]]></add>
+        </operation>
+    </file>
+    <file name="admin/controller/extension/module.php">
+
+        <operation>
+            <search position="after"><![CDATA[
+              $this->load->model('setting/extension');
+          ]]>
+            </search>
+            <add><![CDATA[
+  	        //OpencartModules
+   		    if (($this->request->server['REQUEST_METHOD'] == 'POST')) {
+			    $this->model_setting_extension->editSetting($this->request->post);
+			}
+          ]]></add>
+        </operation>
+
+        <operation>
+            <search position="before"><![CDATA[
+              $this->data['heading_title'] = $this->language->get('heading_title');
+          ]]>
+            </search>
+            <add><![CDATA[
+  	        //OpencartModules
+   		    $this->data['action'] = $this->url->link('extension/module', 'token=' . $this->session->data['token'], 'SSL');
+          ]]></add>
+        </operation>
+
+        <operation>
+            <search position="after"><![CDATA[
+              $this->data['column_action'] = $this->language->get('column_action');
+          ]]>
+            </search>
+            <add><![CDATA[
+  	        //OpencartModules
+  	        $this->data['column_sort_orders'] = $this->language->get('column_sort_orders');
+  	        $this->data['column_sort_order'] = $this->language->get('column_sort_order');
+  	        $this->data['column_description'] = $this->language->get('column_description');
+  	        $this->data['column_positions'] = $this->language->get('column_positions');
+  	        $this->data['column_layouts'] = $this->language->get('column_layouts');
+  	        $this->data['button_save'] = $this->language->get('button_save');
+          ]]></add>
+        </operation>
+
+        <operation>
+            <search position="before"><![CDATA[
+              	public function index() {
+          ]]>
+            </search>
+            <add><![CDATA[
+  	        //OpencartModules
+            private static function cmpdata($a, $b) {
+                if ($a['sort_order']==$b['sort_order']) {
+                    return (strtolower($a['name'])<strtolower($b['name'])) ? -1 : 1;
+                }
+                return ((int)$a['sort_order']<(int)$b['sort_order']) ? -1 : 1;
+            }
+          ]]></add>
+        </operation>
+
+        <operation>
+            <search position="before"><![CDATA[
+              	$this->template = 'extension/module.tpl';
+             ]]>
+            </search>
+            <add><![CDATA[
+  	        //OpencartModules
+            usort($this->data['extensions'], array('ControllerExtensionModule','cmpdata'));
+            ]]></add>
+        </operation>
+
+
+        <operation>
+            <search position="after"><![CDATA[
+              $this->load->model('setting/extension');
+          ]]>
+            </search>
+            <add><![CDATA[
+  	        //OpencartModules
+  	        $this->model_setting_extension->CreateColumns();
+
+          ]]></add>
+        </operation>
+        <operation>
+            <search position="after"><![CDATA[
+          $extension = basename($file, '.php');
+          ]]>
+            </search>
+            <add ><![CDATA[
+	    //OpencartModules
+                $layouts=array();
+                $positions=array();
+                $sort_orders=array();
+
+                $modules = $this->config->get($extension . '_module');
+
+                $extension_data=$this->model_setting_extension->getExtensionByCode($extension,'module');
+
+                if ($modules) {
+                    foreach ($modules as $module) {
+                        $layouts[]=$this->model_setting_extension->getLayoutName($module['layout_id']);
+                        $positions[]=$module['position'];
+                        $sort_orders[]=$module['sort_order'];
+                    }
+                }
+          ]]></add>
+        </operation>
+        <operation>
+            <search position="replace"><![CDATA[
+               'action' => $action
+               ]]>
+            </search>
+            <add ><![CDATA[
+	        //OpencartModules
+					'action' => $action,
+                    'layouts'=>implode(', ',$layouts),
+                    'positions'=>implode(', ',$positions),
+                    'sort_orders'=>implode(', ',$sort_orders),
+                    'sort_order'=>$extension_data['sort_order'],
+                    'description'=>$extension_data['description'],
+					'code' => $extension,
+					'type' => $extension_data['type'],
+            ]]>
+            </add>
+        </operation>
+    </file>
+
+    <file name="admin/model/setting/extension.php">
+        <operation>
+            <search position="after"><![CDATA[
+               class ModelSettingExtension extends Model {            
+            ]]>
+            </search>
+            <add >
+                <![CDATA[
+	        //OpencartModules
+
+	        public function editSetting($data) {
+	            $modules=$data['modules'];
+	            foreach ($modules as $code=> $module) {
+	                if ($module['type']=='module') {
+                        $this->db->query("UPDATE " . DB_PREFIX . "extension SET `sort_order`='".$module['sort_order']."', description='".$this->db->escape($module['description'])."' WHERE type='module' AND code = '" . $this->db->escape($code) . "'");
+                    }
+	            }
+	        }
+
+            public function getLayoutName($layout_id) {
+                $query = $this->db->query("SELECT `name` FROM " . DB_PREFIX . "layout WHERE layout_id = '" . (int)$layout_id . "'");
+                return $query->row['name'];
+            }
+            public function getExtensionByCode($code,$type) {
+                $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "extension WHERE type='".$this->db->escape($type)."' AND code = '" . $this->db->escape($code) . "'");
+                if ($query->num_rows)
+                    return $query->row;
+                else
+                    return array('description'=>'','sort_order'=>'999999', 'type'=>'');
+            }
+            public function CreateColumns() {
+  		        $results = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "extension` LIKE 'sort_order'");
+		        if ($results->num_rows < 1) {
+			        $this->db->query("ALTER TABLE `" . DB_PREFIX . "extension` ADD COLUMN sort_order int(11) NOT NULL DEFAULT 0");
+		        }
+  		        $results = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "extension` LIKE 'description'");
+		        if ($results->num_rows < 1) {
+			        $this->db->query("ALTER TABLE `" . DB_PREFIX . "extension` ADD COLUMN description text NOT NULL DEFAULT ''");
+		        }
+       		    return;
+            }
+            ]]>
+            </add>
+        </operation>
+    </file>
+    <file name="admin/view/template/extension/module.tpl">
+
+        <operation>
+            <search position="after"><![CDATA[
+               <h1><img src="view/image/module.png" alt="" /> <?php echo $heading_title; ?></h1>
+            ]]>
+            </search>
+            <add >
+                <![CDATA[
+	        <!--OpencartModules-->
+	        <div class="buttons">
+	        <a onclick="$('#form').submit();" class="button"><?php echo $button_save; ?></a>
+	        </div>
+            ]]>
+            </add>
+        </operation>
+
+
+        <operation>
+            <search position="before"><![CDATA[
+               <table class="list">
+            ]]>
+            </search>
+            <add >
+                <![CDATA[
+	        <!--OpencartModules-->
+	        <form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form">
+            ]]>
+            </add>
+        </operation>
+
+        <operation>
+            <search position="after"><![CDATA[
+               </table>
+            ]]>
+            </search>
+            <add >
+                <![CDATA[
+	        <!--OpencartModules-->
+	        </form>
+            ]]>
+            </add>
+        </operation>
+
+
+        <operation>
+            <search position="after"><![CDATA[
+               <td class="left"><?php echo $column_name; ?></td>            
+            ]]>
+            </search>
+            <add >
+                <![CDATA[
+	        <!--OpencartModules-->
+            <td class="left"><?php echo $column_layouts; ?></td>
+            <td class="left"><?php echo $column_positions; ?></td>
+            <td class="left"><?php echo $column_sort_orders; ?></td>
+            <td class="left"><?php echo $column_sort_order; ?></td>
+            <td class="left"><?php echo $column_description; ?></td>
+            ]]>
+            </add>
+        </operation>
+        <operation>
+            <search position="after"><![CDATA[
+               <td class="left"><?php echo $extension['name']; ?></td>            
+            ]]>
+            </search>
+            <add >
+                <![CDATA[
+	        <!--OpencartModules-->
+            <td class="left"><?php echo $extension['layouts']; ?></td>
+            <td class="left"><?php echo $extension['positions']; ?></td>
+            <td class="left"><?php echo $extension['sort_orders']; ?></td>
+            <input type="hidden" name="modules[<?php echo $extension['code']; ?>][type]" value="<?php echo $extension['type']; ?>" />
+            <?php if ($extension['type']=='module') { ?>
+            <td class="left"><input type="text" name="modules[<?php echo $extension['code']; ?>][sort_order]" value="<?php echo ($extension['sort_order']=='999999'?'':$extension['sort_order']); ?>" /></td>
+            <td class="left"><textarea style="width:100%" name="modules[<?php echo $extension['code']; ?>][description]"><?php echo $extension['description']; ?></textarea></td>
+            <?php } else { ?>
+            <td></td><td></td>
+            <?php } ?>
+            ]]>
+            </add>
+        </operation>
+    </file>
+
+</modification>
